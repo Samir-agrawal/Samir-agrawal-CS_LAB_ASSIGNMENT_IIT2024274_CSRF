@@ -2,7 +2,7 @@
 const INITIAL_ACCOUNTS = {
   alice: {
     username: 'alice',
-    fullName: 'Alice Johnson (Victim)',
+    fullName: 'Alice Johnson',
     password: 'password123',
     accountNumber: 'APEX-10029',
     balance: 5000,
@@ -10,11 +10,11 @@ const INITIAL_ACCOUNTS = {
   },
   attacker_bob: {
     username: 'attacker_bob',
-    fullName: 'Bob Malory (Attacker)',
+    fullName: 'Bob Malory',
     password: 'password123',
     accountNumber: 'APEX-88392',
     balance: 150,
-    role: 'attacker'
+    role: 'customer'
   },
   charlie: {
     username: 'charlie',
@@ -107,7 +107,7 @@ class BankDatabase {
       amount: parsedAmount,
       status: 'SUCCESS',
       mode: options.mode || this.securityMode,
-      note: options.isForged ? '🚨 UNINTENDED FORGED TRANSFER (CSRF Exploit)' : 'Legitimate User Transfer'
+      note: 'Online Wire Transfer'
     };
     this.transactions.unshift(txRecord);
 

@@ -109,11 +109,8 @@ function renderTransactions(transactions, currentUsername) {
     if (tx.status === 'BLOCKED_CSRF') {
       rowClass = 'tx-blocked';
       statusBadge = `<span class="tx-blocked-tag">🛡️ BLOCKED (Anti-CSRF Defense)</span><small class="text-muted">${tx.note}</small>`;
-    } else if (tx.note && tx.note.includes('FORGED TRANSFER')) {
-      rowClass = 'tx-danger';
-      statusBadge = `<span class="tx-forged-tag">🚨 FORGED ACTION (Exploit Succeeded)</span><small class="text-muted">Unintended transfer</small>`;
     } else {
-      statusBadge = `<span class="status-chip success-chip">✓ Success</span> <small class="text-muted">${tx.note || 'Normal Transfer'}</small>`;
+      statusBadge = `<span class="status-chip success-chip">✓ Completed</span> <small class="text-muted">${tx.note || 'Online Wire Transfer'}</small>`;
     }
 
     return `

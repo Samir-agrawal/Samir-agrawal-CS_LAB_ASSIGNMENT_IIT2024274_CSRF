@@ -223,36 +223,7 @@ bankApp.post('/transfer', requireAuth, (req, res) => {
     `);
   }
 
-  // If request came from the attacker's domain (port 4000), show exploit outcome!
-  if (isCrossOrigin) {
-    return res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>CSRF Exploit Succeeded!</title>
-        <link rel="stylesheet" href="/static/css/style.css">
-      </head>
-      <body class="error-page">
-        <div class="error-card exploit-success-card">
-          <div class="badge badge-vulnerable">🚨 EXPLOIT SUCCESSFUL (VULNERABLE MODE)</div>
-          <h2>Cross-Site Request Forgery Succeeded!</h2>
-          <p class="error-desc">The forged POST request from <strong>${requestOrigin}</strong> was executed by Apex Vault using victim <strong>${sender}</strong>'s ambient credentials!</p>
-          <div class="technical-details">
-            <p><strong>Transferred:</strong> <span class="highlight-amount">$${amount}</span> to <strong>${recipient}</strong></p>
-            <p><strong>Victim:</strong> ${sender} (was logged in)</p>
-            <p><strong>Sender New Balance:</strong> $${result.newBalance}</p>
-            <p><strong>Root Cause:</strong> The bank accepted this state-changing POST without verifying proof of user intent (missing CSRF token).</p>
-          </div>
-          <div class="actions">
-            <a href="/dashboard" class="btn btn-primary">Inspect Bank Dashboard</a>
-          </div>
-        </div>
-      </body>
-      </html>
-    `);
-  }
-
-  // Normal legitimate transfer redirect
+  // Clean realistic redirect back to dashboard
   return res.redirect(`/dashboard?success=Transfer+of+$${amount}+to+${recipient}+completed`);
 });
 
