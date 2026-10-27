@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Apex Vault Bank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dashboard-body">
+
+  <!-- Top Navigation -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="brand-logo">🏛️</span>
+      <div>
+        <span class="brand-title">Apex Vault Bank</span>
+        <span class="brand-subtitle">Cybersecurity Security Lab</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="user-pill">
+        <span class="user-avatar" id="avatarInitial">U</span>
+        <div class="user-info">
+          <span class="user-name" id="userNameDisplay">Loading...</span>
+          <span class="user-role" id="userAccountDisplay">Account #</span>
+        </div>
+      </div>
+      <a href="/logout" class="btn btn-outline btn-sm">Log Out</a>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+
+    <!-- Assignment Banner: Lab Control Center -->
+    <section class="lab-control-panel card">
+      <div class="panel-header">
+        <div class="panel-title-area">
+          <span class="panel-badge">LAB EVALUATION PANEL</span>
+          <h3>CSRF Vulnerability &amp; Defense Workbench</h3>
+          <p>Variant 2: POST-based Forged Action (Auto-Submitting Form) • Author: Samir Kumar (IIT2024274)</p>
+        </div>
+        <div class="mode-indicator" id="modeIndicatorBadge">
+          <span class="status-dot"></span>
+          <span id="modeText">Checking Status...</span>
+        </div>
+      </div>
+
+      <div class="panel-actions-row">
+        <div class="toggle-control-group">
+          <span class="toggle-label">Active Server Defense:</span>
+          <button id="toggleModeBtn" class="btn btn-warning" onclick="toggleSecurityMode()">
+            🔄 Switch to Mitigated Mode
+          </button>
+        </div>
+
+        <div class="action-buttons-group">
+          <a href="http://localhost:4000/claim-prize" target="_blank" class="btn btn-danger" id="exploitLink">
+            🦹 Launch Attacker Page (:4000) ↗
+          </a>
+          <button class="btn btn-outline" onclick="openPayloadModal()">
+            🔍 View Exploit Payload
+          </button>
+          <button class="btn btn-outline" onclick="resetDatabase()">
+            ♻️ Reset Lab Balances
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode Explanation Banner -->
+      <div id="modeExplanationBanner" class="mode-info-alert alert-vulnerable">
+        <strong>🔴 VULNERABLE MODE ACTIVE:</strong> The bank processes <code>POST /transfer</code> without validating any CSRF token. If a logged-in user visits a malicious page on another website, an auto-submitting form can transfer their money without their permission!
+      </div>
+    </section>
+
+    <!-- Main Grid: Stats & Transfer -->
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Balances & Transfer Form -->
+      <div class="grid-col-left">
+
+        <!-- Balance Card -->
+        <div class="card stat-card">
+          <div class="stat-header">
+            <span>Available Checking Balance</span>
+            <span class="currency-tag">USD</span>
+          </div>
+          <div class="stat-value" id="balanceDisplay">$0.00</div>
+          <div class="stat-footer">
+            <span class="status-chip success-chip">● Active Account</span>
+            <span class="text-muted" id="lastUpdated">Updated just now</span>
+          </div>
+        </div>
+
+        <!-- Fund Transfer Card -->
+        <div class="card transfer-card">
+          <div class="card-header">
+            <h4>💸 Transfer Funds</h4>
+            <p>Execute an internal wire transfer between Apex Vault accounts</p>
+          </div>
+
+          <form action="/transfer" method="POST" id="transferForm" class="transfer-form">
+            <!-- Hidden Anti-CSRF Token Input (Synchronizer Token Pattern) -->
+            <input type="hidden" name="_csrf" id="formCsrfToken" value="">
+
+            <div class="form-group">
+              <label for="recipient">Recipient Account</label>
+              <select name="recipient" id="recipient" required class="form-control">
+                <option value="attacker_bob">Bob Malory (Attacker) — APEX-88392</option>
+                <option value="charlie">Charlie Davis — APEX-44910</option>
+                <option value="alice">Alice Johnson — APEX-10029</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="amount">Amount ($ USD)</label>
+              <div class="input-prefix-wrapper">
+                <span class="currency-prefix">$</span>
+                <input type="number" name="amount" id="amount" min="1" step="0.01" value="1000.00" required class="form-control">
+              </div>
+            </div>
+
+            <div class="token-status-box" id="tokenStatusBox">
+              <div class="token-header">
+                <span>Synchronizer Token (Anti-CSRF):</span>
+                <code id="tokenSnippet" class="code-snippet">none</code>
+              </div>
+              <small id="tokenEnforcementText" class="text-muted">
+                In Mitigated mode, this token is strictly enforced.
+              </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="transferSubmitBtn">
+              Authorize Legitimate Transfer
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Transactions & Live Audit Log -->
+      <div class="grid-col-right">
+
+        <!-- Transactions History -->
+        <div class="card table-card">
+          <div class="card-header flex-between">
+            <h4>📋 Transaction Activity</h4>
+            <span class="badge badge-neutral" id="txCountBadge">0 records</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Direction</th>
+                  <th>Amount</th>
+                  <th>Status &amp; Security Note</th>
+                </tr>
+              </thead>
+              <tbody id="transactionTableBody">
+                <tr><td colspan="4" class="text-center text-muted">Loading transactions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Security Audit Log Console -->
+        <div class="card audit-card">
+          <div class="card-header flex-between">
+            <h4>🛡️ Security Event &amp; Audit Logs</h4>
+            <span class="badge badge-code">Live Server Feed</span>
+          </div>
+          <div class="terminal-window" id="auditLogConsole">
+            <!-- Real-time logs rendered here -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Exploit Modal -->
+  <div id="payloadModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>🦹 CSRF Exploit Payload Breakdown</h3>
+        <button class="modal-close" onclick="closePayloadModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>This is the exact payload running on the attacker's server (<code>http://localhost:4000/claim-prize</code>):</p>
+        <pre><code class="language-html">&lt;!-- Malicious Phishing Landing Page on Attacker Server (Port 4000) --&gt;
+&lt;form id="csrfForm" action="http://localhost:3000/transfer" method="POST" style="display:none;"&gt;
+  &lt;input type="hidden" name="recipient" value="attacker_bob" /&gt;
+  &lt;input type="hidden" name="amount" value="1000" /&gt;
+&lt;/form&gt;
+
+&lt;script&gt;
+  // Automatically submits the POST request the instant the page loads!
+  document.getElementById('csrfForm').submit();
+&lt;/script&gt;</code></pre>
+
+        <h4 style="margin-top:1rem;">How the Attack Works (Root Cause):</h4>
+        <ol class="explain-list">
+          <li><strong>Victim is Authenticated:</strong> Alice is logged in to Apex Bank on <code>localhost:3000</code>. Her browser holds the session cookie <code>apex_vault_sid</code>.</li>
+          <li><strong>Phishing Trap:</strong> Attacker tricks Alice into clicking an external link (e.g., claiming a prize) hosted on <code>localhost:4000</code>.</li>
+          <li><strong>Ambient Credentials:</strong> The auto-submitting form initiates a cross-origin <code>POST</code> request back to <code>localhost:3000/transfer</code>.</li>
+          <li><strong>Forged Action:</strong> The browser automatically includes Alice's valid session cookie. In <em>Vulnerable Mode</em>, the server fulfills the transfer because it fails to verify user intent!</li>
+          <li><strong>The Mitigation:</strong> In <em>Mitigated Mode</em>, the server requires a unique, unpredictable <code>_csrf</code> token. Since the attacker origin cannot read Alice's token due to the Same-Origin Policy (SOP), the exploit is rejected with <code>403 Forbidden</code>!</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closePayloadModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>

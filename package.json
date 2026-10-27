@@ -1,0 +1,16 @@
+{
+  "name": "cs-assignment-csrf-demo",
+  "version": "1.0.0",
+  "description": "Cross-Site Request Forgery (CSRF) Exploitation and Mitigation Lab (POST-based Forged Action)",
+  "author": "Samir Kumar (IIT2024274)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  }
+}
