@@ -1,5 +1,7 @@
 node_modules/
 .DS_Store
 *.log
-VIDEO_SCRIPT.md
-VIVA_PREP.md
+VIDEO_SCRIPT*
+VIVA_PREP*
+*.pdf
+*.txt
